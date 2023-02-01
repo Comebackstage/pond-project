@@ -1,6 +1,6 @@
 USE [EPS]
 GO
-/****** Object:  UserDefinedFunction [dbo].[FuncModelGroup]    Script Date: 2/1/2023 4:51:56 PM ******/
+/****** Object:  UserDefinedFunction [dbo].[FuncModelGroup]    Script Date: 2/1/2023 2:29:08 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -23,7 +23,7 @@ AS
 BEGIN
 
 
-IF (select Count(*) from [EMSNREPORT].[dbo].[SkidSingleDimension] where CustomerCode=@CustCode)<1
+IF ((select Count(*) from [EMSNREPORT].[dbo].[SkidSingleDimension] where CustomerCode=@CustCode)<1 OR (@Model like 'ZF%' AND @Model NOT LIKE '%868'))
 --AND (select Count(*) from [EMSNREPORT].[dbo].[SkidSpecialDimension] where customerCode=@CustCode)<1 
 BEGIN
 
@@ -31,9 +31,13 @@ IF @Model LIKE '%TW%' AND @FamilyCode LIKE 'SUMMIT%' AND(@Model NOT LIKE 'ZRT%' 
 	BEGIN
 		SET @FamilyCode='SummitTW'
 	END
-IF @Model LIKE 'ZF%' AND @FamilyCode LIKE 'SUMMIT%'
+IF (@Model LIKE 'ZF%' AND( @Model NOT LIKE 'ZF27%'))  AND @FamilyCode LIKE 'SUMMIT%'
 	BEGIN
 		SET @FamilyCode='Summit-ZF'
+	END
+IF (@Model LIKE 'ZF27%' ) AND  (@FamilyCode <>'Summit-ZF')
+	BEGIN
+		SET @FamilyCode='ZF27-168'
 	END
 IF @Model NOT LIKE '%TW%' AND (@Model LIKE '%550%' or  @Model LIKE '%551%' or  @Model LIKE '%455%' or  @Model LIKE '%425%')AND @FamilyCode LIKE 'SUMMIT%' 
 AND (select Count(*) from [EMSNREPORT].[dbo].[SkidSpecialDimension] where customerCode=@CustCode and modelGroup =@FamilyCode)<1 
